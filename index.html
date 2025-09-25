@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-data/7.1.2/vis-data.min.js"></script>
+  <style>
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .progress-value {
+            min-width: 60px;
+        }
+
+        #attention-graph {
+            background-color: white;
+            border-radius: 4px;
+            margin-top: 1rem;
+            height: 400px;
+            border: 1px solid #ddd;
+        }
+
+        .problem-info {
+            margin-bottom: 1rem;
+        }
+
+        .notification {
+            padding: 1.25rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .notification.is-danger {
+            background-color: #feecf0;
+            color: #cc0f35;
+        }
+
+        .notification.is-warning {
+            background-color: #fffbeb;
+            color: #947600;
+        }
+
+        .notification.is-info {
+            background-color: #ebf8ff;
+            color: #2b6cb0;
+        }
+
+        .box {
+            margin-bottom: 1.5rem;
+        }
+
+        .field-body {
+            display: flex;
+            gap: 1rem;
+        }
+    </style>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B9N9911MNC"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-B9N9911MNC');
+  </script>
+  
+  <meta charset="utf-8">
+  <meta name="description"
+        content="STRUCTURED REASONING FOR LLMS: A UNIFIED FRAMEWORK FOR EFFICIENCY AND EXPLAINABILITY">
+  <meta name="viewport" content="width=device-width, initial-scale=0.1">
+  <title>STRUCTURED REASONING FOR LLMS: A UNIFIED FRAMEWORK FOR EFFICIENCY AND EXPLAINABILITY</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-tooltip.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+</head>
+<body>
+  
+<!--Title block-->
+<section class="hero">
+      <div class="hero-body">
+        <div class="container is-max-desktop" id="top">
+          <div class="columns is-centered">
+            <div class="column has-text-centered">
+              <h1 class="title is-1 publication-title">STRUCTURED REASONING FOR LLMS: A UNIFIED FRAMEWORK FOR EFFICIENCY AND EXPLAINABILITY</h1>        
+              <br>
+              <div class="columns is-centered has-text-centered is-variable is-8">
+              <div class="column is-three-quarters is-centered has-text-centered">
+                <div class="publication-links ">
+                <span class="link-block">
+                  <a href="#abstract"
+                      class="nav-link button-55 is-normal">
+                    <span>Abstract</span>
+                    </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="#pipeline"
+                      class="nav-link button-55 is-normal">
+                    <span>Method</span>
+                    </a>
+                </span>
+                
+                <span class="link-block">
+                  <a href="#performance"
+                      class="nav-link button-55 is-normal">
+                    <span>Performance</span>
+                    </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="#exploration"
+                      class="nav-link button-55 is-normal">
+                    <span>Exploration</span>
+                    </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="#Examples"
+                     class="nav-link button-55 is-normal">
+                    <span>Examples</span>
+                    </a>
+                </span> 
+                
+                <span class="link-block">
+                  <a href="#code"
+                     class="nav-link button-55 is-normal">
+                    <span>Code (Coming soon)</span>
+                    </a>
+                </span> 
+                
+              </div>
+    
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+<!-- Abstract. -->
+<section class="section">
+  <div class="container is-widescreen" id="abstract">
+    <div class="link-block ">
+      <a href="#top" class="nav-link button-55 is-normal">
+        <span>Go to Top</span>
+      </a>
+    </div>
+    <div class="section-title has-text-centered is-centered">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2><br>
+          <div class="content has-text-justified">
+            <p>
+              Recent <strong>Large Language Models (LLMs)</strong> have made remarkable progress, but they still struggle with <em>complex reasoning tasks</em> such as logical deduction and planning, as they primarily rely on token-level probability relationships, limiting their reasoning capabilities.
+              
+              In this paper, inspired by <em>cognitive science</em> and <em>neurosymbolic AI</em>, we introduce <strong>Structured Reasoning</strong>, which aims at enhancing the reasoning capabilities of LLMs from the structure level.
+              
+              Specifically, we first collect high‑frequency, domain‑agnostic <strong>reasoning tags</strong> and construct a <strong>structured reasoning dataset</strong> with those tags. Then, we propose two structure-aware algorithms: 
+              
+              1) <strong>MAX-Flow</strong>, which constructs <em>sparse reasoning graphs</em> by analyzing step-to-step attention matrices and measures the quality of the graph based on each step's contribution to the final answer, and 
+              
+              2) <strong>LCS (Longest Common Sequence)</strong>, which improves reasoning quality by identifying optimal common subsequences across multiple generated responses and leveraging these consistent steps as reliable reasoning paths.
+              
+              Experiments with <strong>DeepSeek-R1-Distill-Qwen-1.5B</strong> and <strong>7B</strong> models show that our method consistently outperforms <em>GRPO</em> and other carefully tuned baselines across various context lengths (0.5k–8k).
+              
+              <strong>Structured Reasoning</strong> shows particular strength in:
+              • <em>efficiency</em> (better performance at shorter lengths)
+              • <em>stability</em> (consistent high-quality outputs across temperature ranges 0.1-1.0)
+              
+              Moreover, as evidenced by the <strong>IISR (Interference Injection and Selective Removal)</strong> analysis, the proposed MAX-Flow algorithm, which is based on step attention matrices, provides a significantly more accurate understanding of reasoning step dependencies compared to perplexity, thereby enhancing the interpretability of the reasoning process.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Method -->
+<section class="section">
+  <div class="container is-widescreen" id="pipeline">
+    <div class="link-block ">
+      <a href="#top" class="nav-link button-55 is-normal">
+        <span>Go to Top</span>
+      </a>
+    </div>
+    <div class="section-title has-text-centered is-centered">
+      <h2 class="title is-3">Method</h2><br>
+    </div>
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div style="margin-bottom: 1.5rem;">  <!-- 添加了这个div来包裹图片并提供下方间距 -->
+          <img id="rep" src="static/images/method/pipeline.png" style="width: 100%; max-width: 1000px; max-height:600px;">
+        </div>
+        <div class="content has-text-justified">
+          Illustration of our three-stage pipeline for enhancing LLMs with Structured Reasoning. (1) Data Collection: Extract structured reasoning labels from unstructured LLM responses, producing outputs with explicit Question, Verify, and Answer components. (2) Step Dependency Computation: Compute step-to-step attention matrices to reveal reasoning dependencies across model layers. (3) Structure-Awared Opitmization: Apply Max-Flow algorithm for providing a significantly more accurate understanding of reasoning step dependencies compared to perplexity and LCS algorithm for improveing reasoning quality by identifying optimal common subsequences across multiple generated responses and leveraging these consistent steps as reliable reasoning paths.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Performance -->
+<section class="section">
+  <div class="container is-widescreen" id="performance">
+    <div class="link-block">
+      <a href="#top" class="nav-link button-55 is-normal">
+        <span>Go to Top</span>
+      </a>
+    </div>
+    <div class="section-title has-text-centered is-centered">
+      <h2 class="title is-3">Performance</h2><br>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <!-- Tab buttons -->
+        <div class="tabs is-centered is-boxed">
+          <ul>
+            <li class="is-active" data-tab="1">
+              <a>
+                <span>Efficiency</span>
+              </a>
+            </li>
+            <li data-tab="2">
+              <a>
+                <span>Stability</span>
+              </a>
+            </li>
+            <li data-tab="3">
+              <a>
+                <span>Explainability</span>
+              </a>
+            </li>
+            <li data-tab="4">
+              <a>
+                <span>IISR</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tab contents -->
+        <div id="tab-content">
+          <!-- Efficiency Tab -->
+          <div class="tab-pane is-active" data-content="1">
+            <div class="content has-text-justified">
+              We evaluate all models across six mathematics-focused benchmark datasets and three out-of-domain datasets (reading, legal, and massive multitask) to demonstrate the effectiveness of MaxFlow and LCS. We observe that our proposed structure-aware optimization methods consistently outperform other baselines for 1.5B models. Notably, MaxFlow with 4k training length achieves significant average improvement over GRPO and surpasses DeepScaleR-1.5B-Preview, which was trained with maximum 24k length and evaluated with 32k length. Similarly for 7B models, it shows that the LCS method performs excellently under 4k maximum length, while MaxFlow outperforms by a large margin across the entire length range.
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+              <img id="data1" src="static/images/method/teaser_a_1.png" width="48%" />
+              <img id="data2" src="static/images/method/teaser_a_2.png" width="48%" />
+            </div>
+          </div>
+
+          <!-- Stability Tab -->
+          <div class="tab-pane" data-content="2">
+            <div class="content has-text-justified">
+              We observe contrasting behaviors between baseline and structured reasoning models across temperature variations. Baseline DeepSeek-R1-Distill models exhibit significant temperature sensitivity, with performance improving substantially as temperature increases from 0.1 to 0.9. For example, the 1.5B baseline shows accuracy gains from 77.47 to 82.33 on MATH500 when temperature rises. This suggests that baseline models rely heavily on sampling diversity to achieve better performance. In contrast, our MaxFlow method maintains consistent performance across all temperature settings, achieving the lowest variance: ±0.56 on MATH500 and ±0.18 on OlympiadBench for the 1.5B model. This temperature robustness indicates that structured reasoning frameworks produce inherently stable outputs without requiring specific sampling parameters, making them more reliable.
+            </div>
+            <div style="display: flex; justify-content: center; margin-top: 25px;">
+              <img id="data3" src="static/images/method/teaser_b.png" width="75%" />
+            </div>
+          </div>
+
+          <!-- Explainability Tab -->
+          <div class="tab-pane" data-content="3">
+            <div class="content has-text-justified">
+              Through IISR experiments, we found that as more reasoning steps were removed, our proposed methods based on step-matrix (top-k, top-p, and max-flow) significantly outperformed random removal. Additionally, in our comparison with perplexity-based algorithms, we found that removing steps with the lowest PPL (PPL Bottom) performed similarly (though slightly worse) to our methods when dealing with redundant but harmless information, as such information typically has low information content and low perplexity. Interestingly, for logically confused interference, removing steps with the highest PPL (PPL Top) performed slightly better, as steps appearing in inappropriate positions caused significantly increased perplexity. This shows that PPL primarily reflects information quantity and cannot distinguish valuable reasoning from disruptive content. Our step-matrix-based methods outperformed PPL-based approaches.
+            </div>
+            <div style="display: flex; justify-content: center; margin-top: 25px;">
+              <img id="data4" src="static/images/method/teaser_c.png" width="75%" />
+            </div>
+          </div>
+          
+          <!-- IISR Tab -->
+          <div class="tab-pane" data-content="4">
+            <div class="content has-text-justified">
+              For the IISR (Interference Injection and Selective Removal) experiment, where we randomly inject N interference steps into an M-step reasoning process, the Error Filtering Efficiency is calculated as:
+              EFE = 1 - (RetainedIrrelevantSteps / IrrelevantSteps), where IrrelevantSteps is the total number of interference steps injected (N), RetainedIrrelevantSteps is the number of interference steps that were incorrectly retained after filtering
+              EFE measures the algorithm's ability to identify and remove irrelevant steps, with a value of 1.0 indicating perfect filtering (all interference steps removed) and 0.0 indicating no filtering capability.
+        </div>
+        <div style="display: flex; justify-content: center; margin-top: 25px;">
+          <img id="data5" src="static/images/method/flow_pruning.png" width="75%" />
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Tab switching script -->
+  <style>
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.is-active {
+      display: block;
+    }
+  </style>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.tabs li');
+      const tabContentBoxes = document.querySelectorAll('.tab-pane');
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(item => item.classList.remove('is-active'));
+          tabContentBoxes.forEach(box => box.classList.remove('is-active'));
+          
+          tab.classList.add('is-active');
+          const target = tab.dataset.tab;
+          document.querySelector(`.tab-pane[data-content="${target}"]`).classList.add('is-active');
+        });
+      });
+    });
+  </script>
+</section>
+
+  <!-- Exploration -->
+  <section class="section">
+    <div class="container is-widescreen" id="exploration">
+      <div class="link-block ">
+        <a href="#top" class="nav-link button-55 is-normal">
+          <span>Go to Top</span>
+        </a>
+      </div>
+      <div class="section-title has-text-centered is-centered">
+        <h2 class="title is-3">Exploration</h2><br>
+      </div>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+              <img id="data1" src="static/images/method/transformer_attention_smooth_gradient_15.png" width="48%" />
+              <img id="data2" src="static/images/method/transformer_attention_smooth_gradient.png" width="48%" />
+            </div>
+            <div class="content has-text-justified">
+              According to 70 samples from 1.5B and 7B models with our step attention matrix thresholded at 0.1, we found that layer 0 attends to an average of 6.82 reasoning steps, while layer 1 attends to only 1.41. This produces a repeating broad-versus-local alternation through approximately layers 0~13, suggesting an early division of labor between (i) layers that aggregate multi-step context and (ii) layers that perform local refinement anchored to the immediately preceding step. Beginning around layer 14, all subsequent layers attend to >8 steps (peaking at 12.06), marking a transition to a stable broad-span integration regime that more faithfully ranks step importance. The same qualitative pattern appears in both 1.5B and 7B models: early oscillatory specialization → mid/late sustained global integration. The 7B model shows a smoother (less jagged) broadening trajectory, whereas the 1.5B model preserves sharper alternating contrasts before converging. These consistent cross-scale dynamics imply (1) the broad-span mid–late blocks encode globally consolidating reasoning signals, and (2) pruning or distillation strategies could target redundant narrow-focus early layers or alternating pairs while preserving (or selectively enhancing) the globally integrative mid–late region.
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- Examples -->
+<section class="section">
+  <div class="container is-widescreen" id="Examples">
+    <div class="link-block">
+      <a href="#top" class="nav-link button-55 is-normal">
+        <span>Go to Top</span>
+      </a>
+    </div>
+    <div class="section-title has-text-centered is-centered">
+      <h2 class="title is-3">Examples</h2><br>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="box">
+      <div class="field is-horizontal">
+        <!-- Dataset Selection -->
+        <div class="field-body">
+          <div class="field">
+            <label class="label">Dataset</label>
+            <div class="control">
+              <div class="select">
+                <select id="benchmark-select">
+                  <option value="drop">DROP</option>
+                  <option value="math500">MATH500</option>
+                  <option value="lsat">LSAT</option>
+                  <option value="olympiadbench">OlympiadBench</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Model Size Selection -->
+          <div class="field">
+            <label class="label">Model Size</label>
+            <div class="control">
+              <div class="select">
+                <select id="model-size-select">
+                  <option value="1.5b">1.5B</option>
+                  <option value="7b">7B</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Training Method Selection -->
+          <div class="field">
+            <label class="label">Method</label>
+            <div class="control">
+              <div class="select">
+                <select id="training-method-select">
+                  <option value="maxflow">MaxFlow</option>
+                  <option value="grpo">GRPO</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis Controls -->
+    <div class="box">
+      <div class="field is-horizontal">
+        <div class="field-body">
+          <div class="field">
+            <label class="label">Analysis Type</label>
+            <div class="control">
+              <div class="select">
+                <select id="analysis-type-select">
+                  <option value="max_flow">Max Flow</option>
+                  <option value="top_k">Top-K</option>
+                  <option value="top_p">Top-P</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Parameter</label>
+            <div class="control">
+              <input class="input" type="number" id="analysis-param" placeholder="Enter parameter value">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">&nbsp;</label>
+            <div class="control">
+              <button class="button is-primary" id="analyze-btn">Analyze</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Display -->
+    <div class="box">
+      <div id="problem-display" class="content">
+        <h4>Problem Information</h4>
+        <div id="problem-content"></div>
+      </div>
+      <div id="analysis-results" class="content">
+        <h4>Analysis Results</h4>
+        <div id="results-content"></div>
+      </div>
+      
+      <!-- Navigation Controls -->
+      <div class="field is-grouped is-grouped-centered mt-4">
+        <p class="control">
+          <button class="button" id="prev-btn">Previous</button>
+        </p>
+        <p class="control">
+          <button class="button" id="next-btn">Next</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class WebReasoningAnalyzer {
+        constructor() {
+            this.currentIndex = 0;
+            this.data = null;
+            this.initializeEventListeners();
+        }
+
+        initializeEventListeners() {
+            document.getElementById('analyze-btn').addEventListener('click', () => this.analyze());
+            document.getElementById('prev-btn').addEventListener('click', () => this.previousProblem());
+            document.getElementById('next-btn').addEventListener('click', () => this.nextProblem());
+            
+            // Add change listeners for selectors
+            ['benchmark-select', 'model-size-select', 'training-method-select'].forEach(id => {
+                document.getElementById(id).addEventListener('change', () => this.loadData());
+            });
+
+            document.getElementById('analysis-type-select').addEventListener('change', () => {
+                this.updateParameterPlaceholder();
+            });
+        }
+
+        async loadData() {
+            const benchmark = document.getElementById('benchmark-select').value;
+            const modelSize = document.getElementById('model-size-select').value;
+            const method = document.getElementById('training-method-select').value;
+
+            const modelName = this.getModelName(modelSize, method);
+            const jsonPath = `/static/json_data/${benchmark}_results_${modelName}.json`;
+
+            try {
+                const response = await fetch(jsonPath);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const jsonData = await response.json();
+                
+                // 根据不同的方法获取对应的数据结构
+                if (method === 'maxflow') {
+                    if (!jsonData.structured?.details) {
+                        throw new Error('Invalid data structure: missing structured.details');
+                    }
+                    this.data = jsonData.structured.details;
+                } else if (method === 'grpo') {
+                    if (!jsonData.unstructured?.details) {
+                        throw new Error('Invalid data structure: missing unstructured.details');
+                    }
+                    this.data = jsonData.unstructured.details;
+                } else {
+                    throw new Error(`Unknown method: ${method}`);
+                }
+
+                if (!Array.isArray(this.data)) {
+                    throw new Error('Invalid data format: details is not an array');
+                }
+
+                this.currentIndex = 0;
+                this.displayCurrentProblem();
+                
+                console.log(`Successfully loaded ${this.data.length} problems for ${method}`);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('problem-content').innerHTML = `
+                    <div class="notification is-danger">
+                        <p>Error loading data:</p>
+                        <p>Path: ${jsonPath}</p>
+                        <p>Method: ${method}</p>
+                        <p>Error: ${error.message}</p>
+                        <p>Data Structure: ${method === 'maxflow' ? 'structured' : 'unstructured'}</p>
+                    </div>`;
+            }
+        }
+
+        getModelName(modelSize, method) {
+            const modelMap = {
+                '1.5b': {
+                    'maxflow': 'Structured-R1-Norm',
+                    'grpo': 'UNS_GRPO_1_5B_4k'
+                },
+                '7b': {
+                    'maxflow': 'MAX_FLOW_7B_4k',
+                    'grpo': 'UNS_GRPO_7B_4k'
+                }
+            };
+            return modelMap[modelSize][method];
+        }
+
+        displayCurrentProblem() {
+            if (!this.data || this.currentIndex >= this.data.length) return;
+
+            const problem = this.data[this.currentIndex];
+            const problemHtml = `
+                <div class="problem-info">
+                    <p><strong>Problem ID:</strong> ${problem.problem_id}</p>
+                    <p><strong>Batch ID:</strong> ${problem.batch_id}</p>
+                    <p><strong>Correct:</strong> ${problem.correct}</p>
+                    <hr>
+                    <p><strong>Problem:</strong></p>
+                    <p>${this.cleanText(problem.problem)}</p>
+                    <hr>
+                    <p><strong>Reasoning:</strong></p>
+                    <p>${this.cleanText(problem.reasoning)}</p>
+                    <hr>
+                    <p><strong>Prediction:</strong></p>
+                    <p>${this.cleanText(problem.prediction)}</p>
+                    <hr>
+                    <p><strong>Ground Truth:</strong></p>
+                    <p>${this.cleanText(problem.ground_truth)}</p>
+                </div>
+            `;
+
+            document.getElementById('problem-content').innerHTML = problemHtml;
+            document.getElementById('results-content').innerHTML = ''; // Clear previous results
+        }
+
+        cleanText(text) {
+            return text.replace(/\n/g, '<br>');
+        }
+
+        updateParameterPlaceholder() {
+            const type = document.getElementById('analysis-type-select').value;
+            const input = document.getElementById('analysis-param');
+            
+            switch(type) {
+                case 'max_flow':
+                    input.placeholder = 'Enter number of nodes to remove';
+                    break;
+                case 'top_k':
+                    input.placeholder = 'Enter k value';
+                    break;
+                case 'top_p':
+                    input.placeholder = 'Enter p value (0-1)';
+                    break;
+            }
+        }
+
+        analyze() {
+            if (!this.data) return;
+
+            const problem = this.data[this.currentIndex];
+            const type = document.getElementById('analysis-type-select').value;
+            const param = parseFloat(document.getElementById('analysis-param').value);
+
+            let results = '';
+            switch(type) {
+                case 'max_flow':
+                    results = this.analyzeMaxFlow(problem, param);
+                    break;
+                case 'top_k':
+                    results = this.analyzeTopK(problem, param);
+                    break;
+                case 'top_p':
+                    results = this.analyzeTopP(problem, param);
+                    break;
+            }
+
+            document.getElementById('results-content').innerHTML = results;
+        }
+
+        analyzeMaxFlow(problem, removeN = 0) {
+            const matrix = problem.step_attention_matrix;
+            const steps = [...problem.step_attention_steps];
+            steps.unshift({ step_tag: "question", step_id: 0 });
+
+            if (!matrix) {
+                return '<div class="notification is-warning">No attention matrix data available</div>';
+            }
+
+            // 创建图结构
+            const n_steps = matrix.length;
+            const graph = this.createGraph(matrix);
+            
+            // 计算节点重要性
+            const nodeImportance = this.calculateNodeImportance(graph, n_steps);
+            
+            // 归一化重要性分数
+            const normalizedImportance = this.normalizeImportance(nodeImportance);
+            
+            // 排序节点
+            const sortedNodes = Object.entries(normalizedImportance)
+                .sort((a, b) => b[1] - a[1]);
+            
+            // 确定要移除的节点
+            const nodesToRemove = sortedNodes.slice(0, removeN).map(n => parseInt(n[0]));
+            const keptNodes = [...Array(n_steps-1).keys()].filter(i => !nodesToRemove.includes(i));
+
+            // 生成结果HTML
+            let resultsHtml = '<div class="content">';
+            
+            // 显示保留的步骤
+            resultsHtml += '<h5>Kept Steps:</h5><ul>';
+            keptNodes.forEach(nodeIndex => {
+                resultsHtml += `<li>${steps[nodeIndex].step_tag}</li>`;
+            });
+            resultsHtml += '</ul>';
+
+            // 显示步骤重要性排序
+            resultsHtml += '<h5>Step Importance Ranking:</h5><ul>';
+            sortedNodes.forEach(([nodeIndex, importance]) => {
+                resultsHtml += `
+                    <li>
+                        <strong>${steps[parseInt(nodeIndex)].step_tag}</strong>: 
+                        <div class="progress-container">
+                            <progress class="progress is-info" 
+                                    value="${importance * 100}" 
+                                    max="100">
+                                ${(importance * 100).toFixed(1)}%
+                            </progress>
+                            <span class="progress-value">${(importance * 100).toFixed(1)}%</span>
+                        </div>
+                    </li>`;
+            });
+            resultsHtml += '</ul>';
+
+            // 添加图形可视化
+            resultsHtml += '<h5>Attention Flow Graph:</h5>';
+            resultsHtml += '<div id="attention-graph" style="height: 400px; border: 1px solid #ddd;"></div>';
+            
+            resultsHtml += '</div>';
+
+            // 在返回结果后渲染图形
+            setTimeout(() => this.renderAttentionGraph(matrix, steps, normalizedImportance), 100);
+
+            return resultsHtml;
+        }
+
+        createGraph(matrix) {
+            const graph = {};
+            const n_steps = matrix.length;
+
+            for (let i = 0; i < n_steps - 1; i++) {
+                graph[i] = {};
+                for (let j = 0; j < n_steps - 1; j++) {
+                    if (matrix[i][j] > 0) {
+                        graph[i][j] = matrix[i][j];
+                    }
+                }
+            }
+
+            return graph;
+        }
+
+        calculateNodeImportance(graph, n_steps) {
+            const nodeImportance = {};
+            const source = 0;
+            const target = n_steps - 2;
+
+            // 计算原始最大流
+            const originalMaxFlow = this.calculateMaxFlow(graph, source, target);
+
+            // 计算每个节点的重要性
+            for (let node = 0; node < n_steps - 1; node++) {
+                const tempGraph = this.removeNode(graph, node);
+                const newMaxFlow = this.calculateMaxFlow(tempGraph, source, target);
+                nodeImportance[node] = originalMaxFlow - newMaxFlow;
+            }
+
+            return nodeImportance;
+        }
+
+        calculateMaxFlow(graph, source, target) {
+            // Ford-Fulkerson算法实现
+            const residualGraph = JSON.parse(JSON.stringify(graph));
+            let maxFlow = 0;
+
+            while (true) {
+                const path = this.findPath(residualGraph, source, target);
+                if (!path) break;
+
+                let pathFlow = Infinity;
+                for (let i = 0; i < path.length - 1; i++) {
+                    pathFlow = Math.min(pathFlow, residualGraph[path[i]][path[i + 1]] || 0);
+                }
+
+                for (let i = 0; i < path.length - 1; i++) {
+                    const u = path[i], v = path[i + 1];
+                    residualGraph[u][v] = (residualGraph[u][v] || 0) - pathFlow;
+                    residualGraph[v][u] = (residualGraph[v][u] || 0) + pathFlow;
+                }
+
+                maxFlow += pathFlow;
+            }
+
+            return maxFlow;
+        }
+
+        findPath(graph, source, target, visited = new Set()) {
+            if (source === target) return [target];
+            
+            visited.add(source);
+            for (const next in graph[source]) {
+                if (!visited.has(parseInt(next)) && graph[source][next] > 0) {
+                    const path = this.findPath(graph, parseInt(next), target, visited);
+                    if (path) return [source, ...path];
+                }
+            }
+            
+            return null;
+        }
+
+        removeNode(graph, node) {
+            const newGraph = JSON.parse(JSON.stringify(graph));
+            delete newGraph[node];
+            for (const key in newGraph) {
+                if (newGraph[key][node]) {
+                    delete newGraph[key][node];
+                }
+            }
+            return newGraph;
+        }
+
+        normalizeImportance(importance) {
+            const values = Object.values(importance);
+            const maxImportance = Math.max(...values.slice(1, -1));
+            
+            const normalized = {};
+            for (const [node, value] of Object.entries(importance)) {
+                normalized[node] = maxImportance !== 0 ? value / maxImportance : 0;
+            }
+            
+            return normalized;
+        }
+
+        renderAttentionGraph(matrix, steps, nodeImportance) {
+            const container = document.getElementById('attention-graph');
+            
+            // 创建节点
+            const nodes = new vis.DataSet(
+                steps.map((step, index) => ({
+                    id: index,
+                    label: step.step_tag,
+                    value: nodeImportance[index] || 0,
+                    color: {
+                        background: `rgba(66, 153, 225, ${nodeImportance[index] || 0})`,
+                        border: '#2b6cb0'
+                    }
+                }))
+            );
+
+            // 创建边
+            const edges = new vis.DataSet();
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[i].length; j++) {
+                    if (matrix[i][j] > 0) {
+                        edges.add({
+                            from: i,
+                            to: j,
+                            value: matrix[i][j],
+                            arrows: 'to',
+                            width: Math.max(1, matrix[i][j] * 5)
+                        });
+                    }
+                }
+            }
+
+            // 创建网络
+            const data = { nodes, edges };
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    scaling: {
+                        min: 10,
+                        max: 30
+                    }
+                },
+                edges: {
+                    smooth: {
+                        type: 'curvedCW',
+                        roundness: 0.2
+                    }
+                },
+                physics: {
+                    stabilization: false,
+                    barnesHut: {
+                        gravitationalConstant: -80000,
+                        springConstant: 0.001,
+                        springLength: 200
+                    }
+                }
+            };
+
+            new vis.Network(container, data, options);
+        }
+
+        analyzeTopK(problem, k = 2) {
+            // 实现 Top-K 分析
+            return '<div class="notification is-info">Top-K analysis not implemented yet</div>';
+        }
+
+        analyzeTopP(problem, p = 0.9) {
+            // 实现 Top-P 分析
+            return '<div class="notification is-info">Top-P analysis not implemented yet</div>';
+        }
+
+        previousProblem() {
+            if (this.currentIndex > 0) {
+                this.currentIndex--;
+                this.displayCurrentProblem();
+            }
+        }
+
+        nextProblem() {
+            if (this.data && this.currentIndex < this.data.length - 1) {
+                this.currentIndex++;
+                this.displayCurrentProblem();
+            }
+        }
+    }
+
+    // 初始化分析器
+    document.addEventListener('DOMContentLoaded', () => {
+        window.reasoningAnalyzer = new WebReasoningAnalyzer();
+        window.reasoningAnalyzer.loadData();
+    });
+
+
+
+    
+  </script>
+</section>
