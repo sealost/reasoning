@@ -3,16 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reasoning Analyzer</title>
+  <title>Structured Reasoning Analyzer</title>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fonts matching index.html -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Google Sans', 'Noto Sans', sans-serif;
+      background: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    /* Header styling matching index.html */
+    .hero {
+      background: white;
+      border-bottom: 1px solid #e9ecef;
+      margin-bottom: 2rem;
+    }
+    
+    .hero-body {
+      padding: 2rem 0;
+      text-align: center;
+    }
+    
+    h1 {
+      font-family: 'Castoro', serif;
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    
+    h2, h3 {
+      font-family: 'Castoro', serif;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+    
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.4rem; }
+    
+    /* Card styling */
+    .card {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Button styling matching index.html academic style */
+    .button {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: white;
+      border: 2px solid #2c3e50;
+      color: #2c3e50;
+      text-decoration: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin: 0.25rem;
+    }
+    
+    .button:hover {
+      background: #2c3e50;
+      color: white;
+      transform: translateY(-1px);
+    }
+    
+    .button.primary {
+      background: #2c3e50;
+      color: white;
+    }
+    
+    .button.primary:hover {
+      background: #34495e;
+    }
+    
+    .button.success { border-color: #27ae60; color: #27ae60; }
+    .button.success:hover { background: #27ae60; color: white; }
+    
+    .button.warning { border-color: #f39c12; color: #f39c12; }
+    .button.warning:hover { background: #f39c12; color: white; }
+    
+    .button.info { border-color: #3498db; color: #3498db; }
+    .button.info:hover { background: #3498db; color: white; }
+    
+    .button.danger { border-color: #e74c3c; color: #e74c3c; }
+    .button.danger:hover { background: #e74c3c; color: white; }
+    
+    /* Split view layout */
     .split-view {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 2rem;
       position: relative;
     }
+    
     .split-view::after {
       content: '';
       position: absolute;
@@ -20,181 +126,534 @@
       bottom: 0;
       left: 50%;
       width: 1px;
-      background: #ddd;
+      background: #e9ecef;
+      margin-left: -0.5px;
     }
+    
+    /* Step boxes */
     .step-box {
-      border: 1px solid #ddd;
+      border: 1px solid #e9ecef;
       padding: 1rem;
-      margin: 0.5rem 0;
-      border-radius: 0.375rem;
+      margin: 0.75rem 0;
+      border-radius: 6px;
       background: white;
+      font-size: 0.95rem;
     }
+    
+    .step-box strong {
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Status indicators */
+    .correct {
+      border-left: 4px solid #27ae60;
+      background: #f8fff9;
+    }
+    
+    .incorrect {
+      border-left: 4px solid #e74c3c;
+      background: #fef9f9;
+    }
+    
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .status-indicator.correct {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status-indicator.incorrect {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status-indicator::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.25rem;
+    }
+    
+    .status-indicator.correct::before {
+      background: #28a745;
+    }
+    
+    .status-indicator.incorrect::before {
+      background: #dc3545;
+    }
+    
+    /* Progress bar */
+    .progress-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    
     .progress-bar {
-      width: 100%;
-      height: 20px;
-      background: #eee;
-      border-radius: 10px;
+      flex: 1;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
       overflow: hidden;
     }
+    
     .progress-bar-fill {
       height: 100%;
-      background: #4CAF50;
+      background: #2c3e50;
       transition: width 0.3s ease;
     }
-    .command-help {
-      background: #f8f9fa;
-      border-left: 4px solid #4CAF50;
-      padding: 1rem;
-      margin: 1rem 0;
-    }
-    .loading {
-      position: relative;
-      padding: 1rem;
+    
+    .progress-text {
+      font-size: 0.9rem;
+      color: #666;
+      min-width: 60px;
       text-align: center;
     }
+    
+    /* Form elements */
+    select, input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: white;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: #2c3e50;
+      box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #2c3e50;
+      font-size: 0.9rem;
+    }
+    
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Loading animation */
+    .loading {
+      position: relative;
+      padding: 2rem;
+      text-align: center;
+      color: #666;
+    }
+    
     .loading:after {
       content: '';
       display: inline-block;
-      width: 1em;
-      height: 1em;
-      border: 2px solid #4CAF50;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e9ecef;
       border-radius: 50%;
-      border-top-color: transparent;
+      border-top-color: #2c3e50;
       animation: spin 1s linear infinite;
       margin-left: 0.5rem;
       vertical-align: middle;
     }
+    
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    
+    /* Alert messages */
+    .alert {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid;
+    }
+    
+    .alert.error {
+      background: #fef2f2;
+      border-color: #e74c3c;
+      color: #c53030;
+    }
+    
+    .alert.warning {
+      background: #fffbeb;
+      border-color: #f39c12;
+      color: #d69e2e;
+    }
+    
+    .alert.info {
+      background: #eff6ff;
+      border-color: #3498db;
+      color: #2b77c9;
+    }
+    
+    /* Analysis results */
+    .analysis-results {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .analysis-results pre {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal.hidden {
+      display: none;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      margin: 1rem;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .help-section {
+      background: #f8f9fa;
+      border-left: 4px solid #2c3e50;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 6px 6px 0;
+    }
+    
+    .help-section h4 {
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
+    
+    .help-section ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .help-section li {
+      padding: 0.25rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+    
+    /* Collapsible sections */
+    .collapsible {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      margin: 0.5rem 0;
+      overflow: hidden;
+    }
+    
+    .collapsible-header {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid transparent;
+      background: white;
+    }
+    
+    .collapsible-header:hover {
+      background: #f8f9fa;
+      border-bottom-color: #e9ecef;
+    }
+    
+    .collapsible-header strong {
+      color: #2c3e50;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    
+    .collapsible-toggle {
+      font-size: 0.9rem;
+      color: #666;
+      transition: transform 0.2s ease;
+      font-weight: bold;
+    }
+    
+    .collapsible.expanded .collapsible-toggle {
+      transform: rotate(180deg);
+    }
+    
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: white;
+    }
+    
+    .collapsible.expanded .collapsible-content {
+      max-height: 1000px;
+    }
+    
+    .collapsible-body {
+      padding: 1rem;
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      border-top: 1px solid #f1f3f4;
+    }
+
+    /* Analysis parameters */
+    .analysis-params {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border: 1px solid #e9ecef;
+    }
+    
+    .analysis-params.hidden {
+      display: none;
+    }
+    
+    .param-input {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .param-input input {
+      width: 120px;
+      flex-shrink: 0;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .split-view {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .split-view::after {
+        display: none;
+      }
+      
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .param-input {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .param-input input {
+        width: 100%;
+      }
+      
+      .hero .container > div {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      
+      .hero h1 {
+        margin-bottom: 0;
+      }
+    }
   </style>
 </head>
-<body class="bg-gray-100">
-  <div class="container mx-auto px-4 py-8">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">推理分析器 (双列对比版)</h1>
-      <div class="flex gap-4">
-        <button onclick="showHelp()" class="bg-gray-500 text-white px-4 py-2 rounded">
-          帮助 (H)
-        </button>
-        <button onclick="quit()" class="bg-red-500 text-white px-4 py-2 rounded">
-          退出 (Q)
-        </button>
+<body>
+  <!-- Header -->
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+          <h1 style="margin-bottom: 0;">Structured Reasoning Analyzer</h1>
+          <div style="display: flex; gap: 0.5rem;">
+            <button onclick="showHelp()" class="button">
+              Help (H)
+            </button>
+            <button onclick="quit()" class="button danger">
+              Exit (Q)
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
+  <div class="container">
     <!-- Data Loading Controls -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h2 class="text-xl font-bold mb-4">数据加载设置</h2>
-      <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="card">
+      <h2>Data Configuration</h2>
+      <div class="grid-3">
         <div>
-          <label class="block mb-2">模型大小:</label>
-          <select id="model-size" class="w-full border p-2 rounded">
+          <label>Model Size:</label>
+          <select id="model-size">
             <option value="1.5b">1.5B Model</option>
             <option value="7b">7B Model</option>
           </select>
         </div>
         <div>
-          <label class="block mb-2">基准测试集:</label>
-          <select id="benchmark" class="w-full border p-2 rounded">
+          <label>Benchmark Dataset:</label>
+          <select id="benchmark">
             <option value="olympiadbench">OlympiadBench</option>
             <option value="lsat">LSAT</option>
             <option value="math500">Math500</option>
             <option value="drop">Drop</option>
           </select>
         </div>
-      </div>
-      <div class="flex justify-end">
-        <button onclick="loadData()" class="bg-blue-500 text-white px-6 py-2 rounded">
-          加载数据 (R)
-        </button>
+        <div style="display: flex; align-items: end;">
+          <button onclick="loadData()" class="button primary" style="width: 100%;">
+            Load Data (R)
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="split-view bg-white p-4 rounded shadow mb-6">
-      <!-- Structured Reasoning -->
-      <div class="pr-4">
-        <h2 class="text-xl font-bold mb-4">结构化推理 <span id="structured-id" class="text-sm text-gray-500"></span></h2>
-        <div id="structured-content">
-          <div class="loading">初始化中...</div>
+    <div class="card">
+      <div class="split-view">
+        <!-- Structured Reasoning -->
+        <div>
+          <h3>Structured Reasoning <span id="structured-id" style="font-size: 0.8rem; color: #666; font-weight: normal;"></span></h3>
+          <div id="structured-content">
+            <div class="loading">Initializing...</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Unstructured Reasoning -->
-      <div class="pl-4">
-        <h2 class="text-xl font-bold mb-4">非结构化推理</h2>
-        <div id="unstructured-content">
-          <div class="loading">初始化中...</div>
+        <!-- Unstructured Reasoning -->
+        <div>
+          <h3>Unstructured Reasoning</h3>
+          <div id="unstructured-content">
+            <div class="loading">Initializing...</div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Analysis Tools -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h3 class="text-lg font-bold mb-4">分析工具</h3>
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <button onclick="showMaxFlowAnalysis()" class="w-full bg-green-500 text-white px-4 py-2 rounded">
-            最大流分析 (M)
-          </button>
-        </div>
-        <div>
-          <button onclick="showTopKAnalysis()" class="w-full bg-yellow-500 text-white px-4 py-2 rounded">
-            Top-K分析 (K)
-          </button>
-        </div>
-        <div>
-          <button onclick="showTopPAnalysis()" class="w-full bg-purple-500 text-white px-4 py-2 rounded">
-            Top-P分析 (P)
-          </button>
-        </div>
+    <div class="card">
+      <h3>Analysis Tools</h3>
+      <div class="grid-3">
+        <button onclick="showMaxFlowAnalysis()" class="button success">
+          Max-Flow Analysis (M)
+        </button>
+        <button onclick="showTopKAnalysis()" class="button warning">
+          Top-K Analysis (K)
+        </button>
+        <button onclick="showTopPAnalysis()" class="button info">
+          Top-P Analysis (P)
+        </button>
       </div>
-      <div id="analysis-params" class="hidden mb-4">
-        <!-- 动态参数输入区域 -->
+      <div id="analysis-params" class="analysis-params hidden">
+        <!-- Dynamic parameter input area -->
       </div>
-      <div id="analysis-results" class="mt-4"></div>
+      <div id="analysis-results"></div>
     </div>
 
     <!-- Navigation -->
-    <div class="bg-white p-4 rounded shadow">
-      <div class="flex justify-between items-center">
-        <button onclick="prevProblem()" class="bg-gray-500 text-white px-4 py-2 rounded">
-          上一题 (←)
+    <div class="card">
+      <div class="progress-container">
+        <button onclick="prevProblem()" class="button">
+          Previous (←)
         </button>
-        <div id="progress" class="flex-1 mx-4">
-          <div class="progress-bar">
-            <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
-          </div>
-          <div class="text-center mt-2" id="progress-text">0/0</div>
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
         </div>
-        <button onclick="nextProblem()" class="bg-gray-500 text-white px-4 py-2 rounded">
-          下一题 (→)
+        <div id="progress-text" class="progress-text">0/0</div>
+        <button onclick="nextProblem()" class="button">
+          Next (→)
         </button>
       </div>
     </div>
+  </div>
 
-    <!-- Help Modal -->
-    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg max-w-2xl w-full mx-4">
-        <h2 class="text-2xl font-bold mb-4">帮助信息</h2>
-        <div class="command-help">
-          <h3 class="font-bold mb-2">🎮 控制命令:</h3>
-          <ul class="space-y-2">
-            <li>← / → - 上一题/下一题</li>
-            <li>M - 最大流分析</li>
-            <li>K - Top-K分析</li>
-            <li>P - Top-P分析</li>
-            <li>R - 重新加载数据</li>
-            <li>H - 显示帮助</li>
-            <li>Q - 退出程序</li>
-          </ul>
-        </div>
-        <button onclick="hideHelp()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-          关闭
-        </button>
+  <!-- Help Modal -->
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Help & Documentation</h2>
+      <div class="help-section">
+        <h4>Keyboard Shortcuts:</h4>
+        <ul>
+          <li>← / → - Navigate between problems</li>
+          <li>M - Run Max-Flow analysis</li>
+          <li>K - Run Top-K analysis</li>
+          <li>P - Run Top-P analysis</li>
+          <li>R - Reload data</li>
+          <li>H - Show this help</li>
+          <li>Q - Exit application</li>
+        </ul>
       </div>
+      <div class="help-section">
+        <h4>Analysis Methods:</h4>
+        <p><strong>Max-Flow:</strong> Constructs sparse reasoning graphs by analyzing step-to-step attention matrices and measures the quality based on each step's contribution to the final answer.</p>
+        <p><strong>Top-K:</strong> Selects the top K most attended steps at each reasoning stage.</p>
+        <p><strong>Top-P:</strong> Uses nucleus sampling to select steps that cumulatively account for probability mass P.</p>
+      </div>
+      <button onclick="hideHelp()" class="button primary" style="margin-top: 1rem;">
+        Close
+      </button>
     </div>
   </div>
 
@@ -207,7 +666,7 @@
       benchmark: 'olympiadbench'
     };
 
-    // 文件路径映射
+    // File path mapping
     const modelMap = {
       '1.5b': {
         'maxflow': 'Structured-R1-Norm',
@@ -219,39 +678,36 @@
       }
     };
 
-    // 初始化 Pyodide
+    // Initialize Pyodide
     async function initPyodide() {
       try {
-        document.getElementById('structured-content').innerHTML = '<div class="loading">正在初始化 Python 环境...</div>';
-        document.getElementById('unstructured-content').innerHTML = '<div class="loading">正在初始化 Python 环境...</div>';
+        document.getElementById('structured-content').innerHTML = '<div class="loading">Initializing Python environment...</div>';
+        document.getElementById('unstructured-content').innerHTML = '<div class="loading">Initializing Python environment...</div>';
         
         let pyodide = await loadPyodide();
         await pyodide.loadPackage(['numpy', 'networkx']);
         window.pyodide = pyodide;
         console.log('✅ Pyodide initialized');
         
-        
-        // 清除加载提示
-        document.getElementById('structured-content').innerHTML = '<div class="step-box">请加载数据开始分析</div>';
-        document.getElementById('unstructured-content').innerHTML = '<div class="step-box">请加载数据开始分析</div>';
+        // Clear loading indicators
+        document.getElementById('structured-content').innerHTML = '<div class="step-box">Please load data to begin analysis</div>';
+        document.getElementById('unstructured-content').innerHTML = '<div class="step-box">Please load data to begin analysis</div>';
       } catch (error) {
         console.error('❌ Pyodide initialization failed:', error);
         document.getElementById('structured-content').innerHTML = `
-          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            初始化失败: ${error.message}
+          <div class="alert error">
+            Initialization failed: ${error.message}
           </div>
         `;
         document.getElementById('unstructured-content').innerHTML = `
-          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            初始化失败: ${error.message}
+          <div class="alert error">
+            Initialization failed: ${error.message}
           </div>
         `;
       }
     }
 
-
-    // 加载数据
-    // 目前加载数据存在问题
+    // Load data
     async function loadData() {
         const modelSize = document.getElementById('model-size').value;
         const benchmark = document.getElementById('benchmark').value;
@@ -259,11 +715,11 @@
         const unstructuredPath = `./static/json_data/${benchmark}_results_${modelMap[modelSize].grpo}.json`;
         
         try {
-            // 显示加载状态
-            document.getElementById('structured-content').innerHTML = '<div class="loading">加载结构化数据中...</div>';
-            document.getElementById('unstructured-content').innerHTML = '<div class="loading">加载非结构化数据中...</div>';
+            // Show loading state
+            document.getElementById('structured-content').innerHTML = '<div class="loading">Loading structured data...</div>';
+            document.getElementById('unstructured-content').innerHTML = '<div class="loading">Loading unstructured data...</div>';
 
-            // 并行获取两个数据源
+            // Fetch both data sources in parallel
             const [structuredResponse, unstructuredResponse] = await Promise.all([
                 fetch(structuredPath),
                 fetch(unstructuredPath)
@@ -273,11 +729,11 @@
                 throw new Error('Network response was not ok');
             }
 
-            // 解析 JSON 数据
+            // Parse JSON data
             const structuredJson = await structuredResponse.json();
             const unstructuredJson = await unstructuredResponse.json();
 
-            // 检查数据结构并正确赋值
+            // Check data structure and assign correctly
             if (!structuredJson.structured?.details) {
                 throw new Error('Invalid structured data format: missing structured.details');
             }
@@ -285,33 +741,34 @@
                 throw new Error('Invalid unstructured data format: missing unstructured.details');
             }
 
-            // 更新状态
+            // Update state
             currentState.structuredData = structuredJson.structured.details;
             currentState.unstructuredData = unstructuredJson.unstructured.details;
             currentState.currentIndex = 0;
             currentState.modelSize = modelSize;
             currentState.benchmark = benchmark;
 
-            // 更新显示
+            // Update display
             updateDisplay();
-            console.log("✅ 数据加载成功");
+            console.log("✅ Data loaded successfully");
         } catch (error) {
-            console.error("❌ 数据加载失败:", error);
+            console.error("❌ Data loading failed:", error);
             document.getElementById('structured-content').innerHTML = `
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    加载失败: ${error.message}
+                <div class="alert error">
+                    Loading failed: ${error.message}
                 </div>
             `;
             document.getElementById('unstructured-content').innerHTML = `
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    加载失败: ${error.message}
+                <div class="alert error">
+                    Loading failed: ${error.message}
                 </div>
             `;
         }
     }
-    // 更新显示
+
+    // Update display
     function updateDisplay() {
-      // 确保数据存在
+      // Ensure data exists
       if (!currentState.structuredData || !currentState.unstructuredData) {
           console.error("No data available");
           return;
@@ -326,92 +783,114 @@
       const unstructured = findMatchingProblem(problem.problem);
       
       document.getElementById('structured-content').innerHTML = `
-        <div id="problem" class="step-box">
-          <strong>问题:</strong><br>${problem.problem}
+        <div class="step-box">
+          <strong>Problem:</strong><br>${problem.problem}
         </div>
-        <div id="prediction" class="step-box ${problem.correct ? 'bg-green-100' : 'bg-red-100'}">
-          <strong>预测答案:</strong><br>${problem.prediction}
-          <div class="mt-2 ${problem.correct ? 'text-green-600' : 'text-red-600'}">
-            ${problem.correct ? '✓ 正确' : '✗ 错误'}
+        <div class="step-box ${problem.correct ? 'correct' : 'incorrect'}">
+          <strong>Predicted Answer:</strong><br>${problem.prediction}
+          <div class="status-indicator ${problem.correct ? 'correct' : 'incorrect'}">
+            ${problem.correct ? 'Correct' : 'Incorrect'}
           </div>
         </div>
-        <div id="token-usage" class="step-box">
-          <strong>Token 使用量:</strong><br>
+        <div class="step-box">
+          <strong>Token Usage:</strong><br>
           ${problem.tokens === 1 ? 
-            '<span class="text-red-600">Out of Maximum length</span>' : 
+            '<span style="color: #e74c3c;">Out of Maximum Length</span>' : 
             problem.tokens}
         </div>
-        <div id="steps" class="space-y-2">
+        <div id="steps">
           ${parseAndDisplaySteps(problem)}
         </div>
       `;
       
-      // 添加解析步骤的函数
+      // Function to parse reasoning steps with collapsible display
       function parseAndDisplaySteps(problem) {
         if (!problem.reasoning) return '';
         
-        // 解析推理文本中的标签和内容
+        // Parse tags and content from reasoning text
         const pattern = /<(\w+)>(.*?)(?=<\w+>|$)/gs;
         const matches = [...problem.reasoning.matchAll(pattern)];
         
-        // 将解析结果与步骤信息对应
+        // Match parsing results with step information - all steps are now collapsible
         return problem.step_attention_steps.map(step => {
           const matchingStep = matches.find(match => match[1] === step.step_tag);
           let content = matchingStep ? matchingStep[2].trim() : '';
           
-          // 如果是 ANSWER 步骤，使用预测结果替换内容
+          // If it's an ANSWER step, replace content with prediction result
           if (step.step_tag.toLowerCase() === 'answer') {
             content = problem.prediction;
           }
           
+          // All steps are now collapsible
           return `
-            <div class="step-box">
-              <strong>${step.step_tag.toUpperCase()}</strong> (Step ${step.step})
-              ${content ? `<div class="mt-2 text-gray-600">${content}</div>` : ''}
+            <div class="collapsible" onclick="toggleCollapsible(this)">
+              <div class="collapsible-header">
+                <strong>${step.step_tag.toUpperCase()} (Step ${step.step})</strong>
+                <span class="collapsible-toggle">▼</span>
+              </div>
+              <div class="collapsible-content">
+                <div class="collapsible-body">${content || 'No content available'}</div>
+              </div>
             </div>
           `;
         }).join('');
       }
 
-            
-      // 在非结构化内容显示中也做相同修改:
+      // Display unstructured content with collapsible reasoning
       if (unstructured) {
+        const reasoningContent = unstructured.reasoning ? 
+          `<div class="collapsible" onclick="toggleCollapsible(this)">
+            <div class="collapsible-header">
+              <strong>Reasoning Process</strong>
+              <span class="collapsible-toggle">▼</span>
+            </div>
+            <div class="collapsible-content">
+              <div class="collapsible-body">${unstructured.reasoning}</div>
+            </div>
+          </div>` :
+          `<div class="step-box">
+            <strong>Reasoning Process:</strong><br>No reasoning content available
+          </div>`;
+
         document.getElementById('unstructured-content').innerHTML = `
           <div class="step-box">
-            <strong>问题:</strong><br>${unstructured.problem}
+            <strong>Problem:</strong><br>${unstructured.problem}
           </div>
-          <div class="step-box ${unstructured.correct ? 'bg-green-100' : 'bg-red-100'}">
-            <strong>预测答案:</strong><br>${unstructured.prediction}
-            <div class="mt-2 ${unstructured.correct ? 'text-green-600' : 'text-red-600'}">
-              ${unstructured.correct ? '✓ 正确' : '✗ 错误'}
+          <div class="step-box ${unstructured.correct ? 'correct' : 'incorrect'}">
+            <strong>Predicted Answer:</strong><br>${unstructured.prediction}
+            <div class="status-indicator ${unstructured.correct ? 'correct' : 'incorrect'}">
+              ${unstructured.correct ? 'Correct' : 'Incorrect'}
             </div>
           </div>
           <div class="step-box">
-            <strong>Token 使用量:</strong><br>
+            <strong>Token Usage:</strong><br>
             ${unstructured.tokens === 1 ? 
-              '<span class="text-red-600">Out of Maximum length</span>' : 
+              '<span style="color: #e74c3c;">Out of Maximum Length</span>' : 
               unstructured.tokens}
           </div>
-          <div class="step-box">
-            <strong>推理过程:</strong><br>${unstructured.reasoning}
-          </div>
+          ${reasoningContent}
         `;
       } else {
         document.getElementById('unstructured-content').innerHTML = `
-          <div class="step-box">未找到匹配的非结构化推理</div>
+          <div class="step-box">No matching unstructured reasoning found</div>
         `;
       }
       
-      // 更新进度条
+      // Update progress bar
       updateProgress();
     }
 
-    // 查找匹配的非结构化推理
+    // Find matching unstructured reasoning
     function findMatchingProblem(problemText) {
       return currentState.unstructuredData.find(item => item.problem === problemText);
     }
 
-    // 更新进度条
+    // Toggle collapsible sections
+    function toggleCollapsible(element) {
+      element.classList.toggle('expanded');
+    }
+
+    // Update progress bar
     function updateProgress() {
       const total = currentState.structuredData.length;
       const current = currentState.currentIndex + 1;
@@ -421,14 +900,14 @@
       document.getElementById('progress-text').textContent = `${current}/${total}`;
     }
 
-    // 分析函数
+    // Analysis functions
     async function showMaxFlowAnalysis() {
       document.getElementById('analysis-params').innerHTML = `
-        <div class="bg-gray-100 p-4 rounded">
-          <label class="block mb-2">要移除的节点数量:</label>
-          <input type="number" id="remove-n" value="0" min="0" class="border p-2 rounded w-32">
-          <button onclick="runMaxFlowAnalysis()" class="ml-4 bg-green-500 text-white px-4 py-2 rounded">
-            运行分析
+        <div class="param-input">
+          <label>Number of nodes to remove:</label>
+          <input type="number" id="remove-n" value="0" min="0">
+          <button onclick="runMaxFlowAnalysis()" class="button success">
+            Run Analysis
           </button>
         </div>
       `;
@@ -440,14 +919,14 @@
         const problem = currentState.structuredData[currentState.currentIndex];
         
         try {
-            document.getElementById('analysis-results').innerHTML = '<div class="loading">正在分析...</div>';
+            document.getElementById('analysis-results').innerHTML = '<div class="loading">Analyzing...</div>';
             
-            // 确保数据存在
+            // Check data exists
             if (!problem.step_attention_matrix || !problem.step_attention_steps) {
-                throw new Error('缺少必要的数据：step_attention_matrix 或 step_attention_steps');
+                throw new Error('Missing required data: step_attention_matrix or step_attention_steps');
             }
 
-            // 创建steps的副本并添加question节点
+            // Create copy of steps and add question node
             const steps = [
                 {"step_tag": "question", "step": 0},
                 ...problem.step_attention_steps
@@ -460,20 +939,20 @@
                 def select_steps_by_max_flow(step_attention_matrix, remove_n=0):
                     n_steps = len(step_attention_matrix)
                     
-                    # 创建有向图
+                    # Create directed graph
                     G = nx.DiGraph()
                     
-                    # 添加节点
+                    # Add nodes
                     for i in range(n_steps-1):
                         G.add_node(i)
                     
-                    # 添加边
+                    # Add edges
                     for i in range(n_steps-1):
                         for j in range(n_steps-1):
                             if step_attention_matrix[i][j] > 0:
                                 G.add_edge(i, j, capacity=step_attention_matrix[i][j])
                     
-                    # 计算节点重要性
+                    # Calculate node importance
                     node_importance = {}
                     source = 0
                     target = n_steps-2
@@ -493,7 +972,7 @@
                         except:
                             node_importance[node] = original_max_flow
                     
-                    # 归一化
+                    # Normalize
                     importance_values = list(node_importance.values())
                     max_importance = max(importance_values[1:-1]) if len(importance_values) > 2 else 1
                     
@@ -508,25 +987,25 @@
                     
                     return kept_nodes, sorted_nodes
 
-                # 运行分析
+                # Run analysis
                 matrix = ${JSON.stringify(problem.step_attention_matrix)}
                 steps = ${JSON.stringify(steps)}
                 kept_nodes, sorted_nodes = select_steps_by_max_flow(matrix, ${removeN})
                 kept_steps = [steps[i]['step_tag'] for i in kept_nodes]
                 importance_list = [f"{steps[node]['step_tag']}: {importance:.3f}" for node, importance in sorted_nodes]
-                f"保留的节点:\\n" + "\\n".join(kept_steps) + "\\n\\n节点重要性排序:\\n" + "\\n".join(importance_list)
+                f"Retained nodes:\\n" + "\\n".join(kept_steps) + "\\n\\nNode importance ranking:\\n" + "\\n".join(importance_list)
             `);
             
             document.getElementById('analysis-results').innerHTML = `
-                <div class="bg-gray-100 p-4 rounded">
+                <div class="analysis-results">
                     <pre>${result}</pre>
                 </div>
             `;
         } catch (error) {
-            console.error("分析失败:", error);
+            console.error("Analysis failed:", error);
             document.getElementById('analysis-results').innerHTML = `
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    分析失败: ${error.message}
+                <div class="alert error">
+                    Analysis failed: ${error.message}
                 </div>
             `;
         }
@@ -534,11 +1013,11 @@
 
     async function showTopKAnalysis() {
       document.getElementById('analysis-params').innerHTML = `
-        <div class="bg-gray-100 p-4 rounded">
-          <label class="block mb-2">K值:</label>
-          <input type="number" id="top-k" value="2" min="1" class="border p-2 rounded w-32">
-          <button onclick="runTopKAnalysis()" class="ml-4 bg-yellow-500 text-white px-4 py-2 rounded">
-            运行分析
+        <div class="param-input">
+          <label>K value:</label>
+          <input type="number" id="top-k" value="2" min="1">
+          <button onclick="runTopKAnalysis()" class="button warning">
+            Run Analysis
           </button>
         </div>
       `;
@@ -550,11 +1029,11 @@
       const problem = currentState.structuredData[currentState.currentIndex];
       
       try {
-          document.getElementById('analysis-results').innerHTML = '<div class="loading">正在分析...</div>';
+          document.getElementById('analysis-results').innerHTML = '<div class="loading">Analyzing...</div>';
           
-          // 检查数据
+          // Check data
           if (!problem.step_attention_matrix || !problem.step_attention_steps) {
-              throw new Error('缺少必要的数据');
+              throw new Error('Missing required data');
           }
 
           const steps = [
@@ -567,7 +1046,7 @@
 
               def select_steps(step_attention_matrix, top_k):
                   if top_k <= 0:
-                      raise ValueError("top_k必须大于0")
+                      raise ValueError("top_k must be greater than 0")
                   
                   n_steps = step_attention_matrix.shape[1]
                   stack = [n_steps - 2]
@@ -597,44 +1076,43 @@
                               stack.append(idx+1)
                               selected_attention.append(attention_scores[idx])
                   
-                  # 排序并添加问题节点
+                  # Sort and add question node
                   ordered_indices = np.argsort(selected_steps)
                   selected_steps = [selected_steps[i] for i in ordered_indices]
                   selected_steps.insert(0, 0)
                   
                   return selected_steps
 
-              # 运行分析
+              # Run analysis
               matrix = np.array(${JSON.stringify(problem.step_attention_matrix)})
               steps = ${JSON.stringify(steps)}
               selected = select_steps(matrix, ${k})
               selected_steps = [steps[i]['step_tag'] for i in selected]
-              f"选中的步骤:\\n" + "\\n".join(selected_steps)
+              f"Selected steps:\\n" + "\\n".join(selected_steps)
           `);
           
           document.getElementById('analysis-results').innerHTML = `
-              <div class="bg-gray-100 p-4 rounded">
+              <div class="analysis-results">
                   <pre>${result}</pre>
               </div>
           `;
       } catch (error) {
-          console.error("分析失败:", error);
+          console.error("Analysis failed:", error);
           document.getElementById('analysis-results').innerHTML = `
-              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                  分析失败: ${error.message}
+              <div class="alert error">
+                  Analysis failed: ${error.message}
               </div>
           `;
       }
   }
 
-
     async function showTopPAnalysis() {
       document.getElementById('analysis-params').innerHTML = `
-        <div class="bg-gray-100 p-4 rounded">
-          <label class="block mb-2">P值 (0-1):</label>
-          <input type="number" id="top-p" value="0.9" min="0" max="1" step="0.1" class="border p-2 rounded w-32">
-          <button onclick="runTopPAnalysis()" class="ml-4 bg-purple-500 text-white px-4 py-2 rounded">
-            运行分析
+        <div class="param-input">
+          <label>P value (0-1):</label>
+          <input type="number" id="top-p" value="0.9" min="0" max="1" step="0.1">
+          <button onclick="runTopPAnalysis()" class="button info">
+            Run Analysis
           </button>
         </div>
       `;
@@ -646,11 +1124,11 @@
         const problem = currentState.structuredData[currentState.currentIndex];
         
         try {
-            document.getElementById('analysis-results').innerHTML = '<div class="loading">正在分析...</div>';
+            document.getElementById('analysis-results').innerHTML = '<div class="loading">Analyzing...</div>';
             
-            // 检查数据
+            // Check data
             if (!problem.step_attention_matrix || !problem.step_attention_steps) {
-                throw new Error('缺少必要的数据');
+                throw new Error('Missing required data');
             }
 
             const steps = [
@@ -663,7 +1141,7 @@
 
                 def select_steps(step_attention_matrix, top_p):
                     if top_p <= 0:
-                        raise ValueError("top_p必须大于0")
+                        raise ValueError("top_p must be greater than 0")
                     
                     n_steps = step_attention_matrix.shape[1]
                     stack = [n_steps - 2]
@@ -706,38 +1184,37 @@
                                 selected_attention.append(attention_scores[idx])
                                 selected_probs.append(normalized_scores[np.where(sorted_indices == idx)[0][0]])
                     
-                    # 排序并添加问题节点
+                    # Sort and add question node
                     ordered_indices = np.argsort(selected_steps)
                     selected_steps = [selected_steps[i] for i in ordered_indices]
                     selected_steps.insert(0, 0)
                     
                     return selected_steps
 
-                # 运行分析
+                # Run analysis
                 matrix = np.array(${JSON.stringify(problem.step_attention_matrix)})
                 steps = ${JSON.stringify(steps)}
                 selected = select_steps(matrix, ${p})
                 selected_steps = [steps[i]['step_tag'] for i in selected]
-                f"选中的步骤:\\n" + "\\n".join(selected_steps)
+                f"Selected steps:\\n" + "\\n".join(selected_steps)
             `);
             
             document.getElementById('analysis-results').innerHTML = `
-                <div class="bg-gray-100 p-4 rounded">
+                <div class="analysis-results">
                     <pre>${result}</pre>
                 </div>
             `;
         } catch (error) {
-            console.error("分析失败:", error);
+            console.error("Analysis failed:", error);
             document.getElementById('analysis-results').innerHTML = `
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    分析失败: ${error.message}
+                <div class="alert error">
+                    Analysis failed: ${error.message}
                 </div>
             `;
         }
     }
 
-
-    // 导航函数
+    // Navigation functions
     function prevProblem() {
       if (currentState.currentIndex > 0) {
         currentState.currentIndex--;
@@ -752,7 +1229,7 @@
       }
     }
 
-    // 帮助相关函数
+    // Help functions
     function showHelp() {
       document.getElementById('help-modal').classList.remove('hidden');
     }
@@ -761,14 +1238,14 @@
       document.getElementById('help-modal').classList.add('hidden');
     }
 
-    // 退出函数
+    // Exit function
     function quit() {
-      if (confirm('确定要退出吗？')) {
+      if (confirm('Are you sure you want to exit?')) {
         window.close();
       }
     }
 
-    // 键盘快捷键
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       switch(e.key) {
         case 'ArrowLeft':
@@ -804,7 +1281,7 @@
       }
     });
 
-    // 初始化
+    // Initialize
     initPyodide();
   </script>
 </body>
